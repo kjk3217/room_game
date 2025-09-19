@@ -1,0 +1,764 @@
+/* 기본 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    background: linear-gradient(135deg, #2c1810, #5d4037);
+    color: #f5f5dc;
+    overflow: hidden;
+}
+
+/* 화면 전환 효과 - 텍스트 제거 */
+.container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.screen-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 5000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.screen-transition.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 전환 비디오 */
+.transition-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* 방 전환 애니메이션 */
+.room {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.room.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.room.exit-left {
+    opacity: 0;
+    transform: translateX(-100px);
+}
+
+/* 시작 화면 - 로고와 버튼만 */
+.start-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('images/start.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1a237e;
+    text-align: center;
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.8s ease;
+}
+
+.start-screen.fade-out {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+/* 게임 로고 */
+.game-logo {
+    max-width: 800px;
+    width: 85%;
+    height: auto;
+    margin-bottom: 4rem;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));
+    animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    from { filter: drop-shadow(0 0 20px rgba(255,215,0,0.5)); }
+    to { filter: drop-shadow(0 0 40px rgba(255,215,0,0.8)); }
+}
+
+.start-btn {
+    padding: 15px 30px;
+    font-size: 3rem;
+    background: linear-gradient(45deg, #8e24aa, #3f51b5);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.start-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* 게임 화면 */
+.game-screen {
+    display: none;
+    height: 100vh;
+    position: relative;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease;
+}
+
+.game-screen.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 상단 UI */
+.top-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    padding: 15px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress {
+    font-size: 2rem;
+    color: #ffd700;
+}
+
+.room-info {
+    font-size: 2rem;
+    color: #87ceeb;
+}
+
+/* 타이머 스타일 */
+.timer-container {
+    text-align: center;
+    position: relative;
+}
+
+.timer {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00ff00;
+    background: rgba(0,0,0,0.7);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 2px solid #00ff00;
+    text-shadow: 0 0 10px rgba(0,255,0,0.8);
+    box-shadow: 0 0 20px rgba(0,255,0,0.3);
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.timer.warning {
+    color: #ff6b00;
+    border-color: #ff6b00;
+    text-shadow: 0 0 10px rgba(255,107,0,0.8);
+    box-shadow: 0 0 20px rgba(255,107,0,0.5);
+    animation: timerPulse 1s ease-in-out infinite;
+}
+
+.timer.danger {
+    color: #ff0000;
+    border-color: #ff0000;
+    text-shadow: 0 0 15px rgba(255,0,0,1);
+    box-shadow: 0 0 30px rgba(255,0,0,0.7);
+    animation: timerDanger 0.5s ease-in-out infinite;
+}
+
+.timer-warning {
+    position: absolute;
+    top: auto;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,0,0,0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 2rem;
+    white-space: nowrap;
+    animation: warningBlink 1s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes timerDanger {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-1deg); }
+    75% { transform: scale(1.1) rotate(1deg); }
+}
+
+@keyframes warningBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* 방 배경 */
+.room1 { 
+    background-image: url('images/room1.png');
+    background-color: #8b7355;
+}
+.room2 { 
+    background-image: url('images/room2.png');
+    background-color: #2d5a2d;
+}
+.room3 { 
+    background-image: url('images/room3.png');
+    background-color: #1a1a2e;
+}
+
+/* 클릭 가능한 오브젝트 */
+.clickable {
+    position: absolute;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: transparent;
+    text-shadow: none;
+    font-size: 0;
+    text-align: center;
+    box-shadow: none;
+    /* 추가: filter 효과를 위한 설정 */
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+}
+
+/* === ✨ 신규/수정된 코드 시작 ✨ === */
+@keyframes mysticalGlow {
+    0% {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 224, 0.4)) 
+                drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 255, 224, 0.7)) 
+                drop-shadow(0 0 25px rgba(255, 215, 0, 0.5));
+    }
+    100% {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 224, 0.4)) 
+                drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    }
+}
+
+.clickable:hover {
+    animation: mysticalGlow 2s ease-in-out infinite;
+    transform: scale(1.05); /* 약간 확대되는 효과 추가 */
+}
+/* === ✨ 신규/수정된 코드 종료 ✨ === */
+
+.clickable.completed {
+    border-color: transparent;
+    box-shadow: none;
+    background: transparent;
+    animation: none; /* 완료되면 반짝임 효과 제거 */
+    transform: none; /* 완료되면 확대 효과 제거 */
+}
+
+.clickable.completed:hover {
+    animation: none;
+    transform: none;
+}
+
+.clickable.completed::after {
+    content: '✓';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00ff00;
+    color: #000;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,255,0,0.3);
+}
+
+/* 방1 오브젝트 위치 */
+.tree { top: 25%; left: 7%; width: 70px; height: 350px; }
+.jar { top: 55%; left: 44%; width: 80px; height: 140px; }
+.candle { top: 68%; right: 10%; width: 50px; height: 75px; }
+.door1 { top: 25%; right: 18%; width: 150px; height: 250px; }
+
+/* 방2 오브젝트 위치 */
+.hourglass { top: 80%; left: 44%; width: 60px; height: 130px; }
+.box { top: 60%; right: 15%; width: 130px; height: 120px; }
+.mask { top: 40%; left: 60%; width: 80px; height: 110px; }
+.door2 { top: 25%; left: 9%; width: 90px; height: 160px; }
+
+/* 방3 오브젝트 위치 */
+.bible { top: 37%; right: 11%; width: 100px; height: 80px; }
+.shield { top: 40%; left: 30%; width: 100px; height: 130px; }
+.cross { top: 17%; left: 13%; width: 70px; height: 250px; }
+.door3 { top: 26%; right: 27%; width: 120px; height: 200px; }
+
+/* 모달 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #4a148c, #1a237e);
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 1500px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    animation: modalSlide 0.3s ease-out;
+}
+
+@keyframes modalSlide {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal h3 {
+    color: #ffd700;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.modal p {
+    margin-bottom: 23px;
+    line-height: 1.4;
+    font-size: 2.3rem;
+    white-space: pre-line;
+    word-break: keep-all;
+}
+
+.modal input, .modal textarea {
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 2px solid #6a1b9a;
+    border-radius: 10px;
+    font-size: 2.0rem;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    font-family: inherit;
+}
+
+.modal input:focus, .modal textarea:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255,215,0,0.3);
+}
+
+.modal textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.modal button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.submit-btn {
+    background: linear-gradient(45deg, #4caf50, #2e7d32);
+    color: white;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76,175,80,0.4);
+}
+
+.close-btn {
+    background: linear-gradient(45deg, #f44336, #c62828);
+    color: white;
+}
+
+.close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244,67,54,0.4);
+}
+
+/* 4개 입력 필드 */
+.four-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.four-inputs input {
+    margin-bottom: 0;
+}
+
+/* 단어 정렬 게임 스타일 */
+.word-sort-game-container {
+    width: 100%;
+}
+
+.shuffled-words-container,
+.answer-words-container {
+    transition: background-color 0.3s ease;
+}
+
+.word-element {
+    animation: wordAppear 0.3s ease-out;
+}
+
+.word-element:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.word-element:active {
+    transform: scale(0.95);
+}
+
+@keyframes wordAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 드래그 중인 요소 스타일 */
+.word-element.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+/* 메시지 */
+.message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220,20,60,0.95);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    z-index: 2000;
+    animation: messagePopup 0.3s ease-out;
+}
+
+@keyframes messagePopup {
+    from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* 다음 방 버튼 */
+.next-room-btn {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #ff9800, #f57c00);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 2.5rem;
+    cursor: pointer;
+    display: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.next-room-btn:hover {
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* 엔딩 화면 */
+.ending-screen {
+    display: none;
+    height: 100vh;
+    background-image: url('images/ending.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    padding: 50px 20px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 1s ease;
+}
+
+.ending-screen.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+@keyframes endingGlow {
+    from { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+    to { box-shadow: 0 0 40px rgba(255,215,0,0.8); }
+}
+
+.ending-content h2 {
+    font-size: 4rem;
+    color: #ffd700;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+    text-align: center;
+    margin-top: 50px;
+}
+
+.ending-content p {
+    font-size: 3rem;
+    color: #f5f5dc;
+    margin-bottom: auto;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.9);
+}
+
+/* 다시 시작 버튼 - 하단 중앙, 크게 */
+.restart-btn {
+    padding: 20px 50px;
+    background: linear-gradient(45deg, #4caf50, #2e7d32);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    
+    /* 하단 중앙 배치 */
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.restart-btn:hover {
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 8px 25px rgba(76,175,80,0.6);
+    font-size: 2.1rem;
+}
+
+/* 게임오버 화면 */
+.game-over-screen {
+    display: none;
+    height: 100vh;
+    background: linear-gradient(135deg, #8b0000, #2b0000);
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 1s ease;
+}
+
+.game-over-screen.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.game-over-content {
+    background: rgba(0,0,0,0.9);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #ff0000;
+    box-shadow: 0 0 30px rgba(255,0,0,0.5);
+}
+
+.game-over-content h2 {
+    font-size: 3rem;
+    color: #ff0000;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255,0,0,0.8);
+}
+
+.game-over-content p {
+    font-size: 1.3rem;
+    margin-bottom: 30px;
+    color: #f5f5dc;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .game-logo {
+        max-width: 400px;
+        margin-bottom: 3rem;
+    }
+    .start-btn { font-size: 1.8rem; padding: 12px 25px; }
+   .modal-content { 
+       padding: 25px; 
+       width: 98%;
+       margin: 10px;
+   }
+   .modal h3 { 
+       font-size: 1.6rem; 
+       margin-bottom: 20px;
+   }
+   .modal p { 
+       font-size: 1.1rem; 
+       line-height: 1.7;
+   }
+   .modal input, .modal textarea { 
+       font-size: 1.1rem; 
+       padding: 12px;
+   }
+   .modal button { 
+       font-size: 1.1rem; 
+       padding: 12px 25px;
+   }
+   .top-ui { 
+       padding: 10px; 
+       font-size: 0.9rem;
+       flex-direction: column;
+       gap: 10px;
+   }
+   .timer {
+       font-size: 1.5rem;
+       padding: 8px 15px;
+   }
+   .clickable { width: 60px !important; height: 80px !important; }
+   .door1, .door2, .door3 { width: 80px !important; height: 120px !important; }
+   .ending-content h2 { font-size: 2.5rem; }
+   .ending-content p { font-size: 1.8rem; }
+   
+   /* 반응형 - 단어 정렬 게임 */
+   .word-element {
+       font-size: 1rem !important;
+       padding: 8px 12px !important;
+   }
+   
+   .shuffled-words-container,
+   .answer-words-container {
+       padding: 15px !important;
+       min-height: 80px !important;
+   }
+}
+
+@media (max-width: 480px) {
+   .game-logo {
+       max-width: 300px;
+       margin-bottom: 2rem;
+   }
+   .start-btn { font-size: 1.5rem; }
+   .modal-content { 
+       width: 95%; 
+       padding: 20px; 
+       margin: 5px;
+   }
+   .modal h3 { 
+       font-size: 1.4rem; 
+       margin-bottom: 15px;
+   }
+   .modal p { 
+       font-size: 1rem; 
+       line-height: 1.6;
+   }
+   .modal input, .modal textarea { 
+       font-size: 1rem; 
+       padding: 10px;
+   }
+   .modal button { 
+       font-size: 1rem; 
+       padding: 10px 20px;
+   }
+   .timer {
+       font-size: 1.2rem;
+       padding: 6px 12px;
+   }
+   .clickable { width: 50px !important; height: 60px !important; }
+   .ending-content h2 { font-size: 2rem; }
+   .ending-content p { font-size: 1.5rem; }
+   
+   .word-element {
+       font-size: 0.9rem !important;
+       padding: 6px 10px !important;
+   }
+   
+   .shuffled-words-container,
+   .answer-words-container {
+       padding: 10px !important;
+       min-height: 60px !important;
+   }
+}
+  /* 비밀번호, 암호 강조 스타일 */
+.highlight-red {
+    color: #ff4d4d; /* 눈에 잘 띄는 밝은 빨간색 */
+    font-weight: bold; /* 글자를 굵게 만듭니다 */
+}
