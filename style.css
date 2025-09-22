@@ -421,6 +421,16 @@ body {
     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
 
+/* === ✨ 터치 드래그앤 드롭 성능 개선을 위한 스타일 (추가) ✨ === */
+.word-element.touch-dragging {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0.6;
+    transform: scale(1.1) rotate(5deg);
+    transition: none;
+}
+
 /* 다음 방 버튼 */
 .next-room-btn {
     position: absolute;
@@ -528,12 +538,3 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
-
-
-
-
-
-
-
-
-
