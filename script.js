@@ -980,10 +980,6 @@ function setupDropZones(...containers) {
        if (container) {
             container.addEventListener('dragover', handleDragOver);
             container.addEventListener('drop', handleDrop);
-            
-            // 모바일 터치 지원
-            container.addEventListener('touchmove', handleContainerTouchMove, { passive: false });
-            container.addEventListener('touchend', handleContainerTouchEnd, { passive: false });
        }
    });
 }
@@ -993,15 +989,14 @@ function setupDropZones(...containers) {
 function handleDragStart(e) {
    // 드래그하는 요소의 원래 인덱스를 데이터로 전달
    e.dataTransfer.setData('text/plain', e.target.dataset.index);
-   e.target.style.opacity = '0.5';
-   e.target.style.cursor = 'grabbing';
+   e.target.classList.add('dragging'); // Use class for visual feedback
 }
 
 // 드래그 종료
 function handleDragEnd(e) {
-   e.target.style.opacity = '1';
-   e.target.style.cursor = 'grab';
+   e.target.classList.remove('dragging');
 }
+
 
 // 드래그 오버
 function handleDragOver(e) {
@@ -1051,51 +1046,69 @@ function resetDropZoneBackground(container) {
 }
 
 
-// 터치 이벤트 지원 (모바일)
+// === ✨ 터치 이벤트 핸들러 개선 ✨ ===
 let draggedTouchElement = null;
 let touchOffsetX = 0;
 let touchOffsetY = 0;
 
 function handleTouchStart(e) {
-   e.preventDefault();
-   draggedTouchElement = e.target;
-   const touch = e.touches[0];
-   const rect = e.target.getBoundingClientRect();
-   touchOffsetX = touch.clientX - rect.left;
-   touchOffsetY = touch.clientY - rect.top;
-   e.target.style.opacity = '0.5';
-   e.target.style.zIndex = '1000';
+    e.preventDefault();
+    draggedTouchElement = e.target;
+    const touch = e.touches[0];
+    const rect = e.target.getBoundingClientRect();
+
+    // 터치가 요소의 어디에서 시작되었는지 계산
+    touchOffsetX = touch.clientX - rect.left;
+    touchOffsetY = touch.clientY - rect.top;
+
+    // 드래그 중인 요소에 스타일 적용
+    draggedTouchElement.classList.add('touch-dragging');
+    // 초기 위치 설정 (깜빡임 방지)
+    draggedTouchElement.style.left = `${rect.left}px`;
+    draggedTouchElement.style.top = `${rect.top}px`;
+
+    // 드래그 중 페이지 스크롤 방지
+    document.body.style.overflow = 'hidden';
 }
 
 function handleTouchMove(e) {
-   e.preventDefault();
-   if (!draggedTouchElement) return;
-   
-   const touch = e.touches[0];
-   draggedTouchElement.style.position = 'fixed';
-   draggedTouchElement.style.left = (touch.clientX - touchOffsetX) + 'px';
-   draggedTouchElement.style.top = (touch.clientY - touchOffsetY) + 'px';
+    e.preventDefault();
+    if (!draggedTouchElement) return;
+    
+    const touch = e.touches[0];
+    // 터치 위치에 따라 요소 위치 업데이트
+    const x = touch.clientX - touchOffsetX;
+    const y = touch.clientY - touchOffsetY;
+    draggedTouchElement.style.left = `${x}px`;
+    draggedTouchElement.style.top = `${y}px`;
 }
 
 function handleTouchEnd(e) {
     e.preventDefault();
     if (!draggedTouchElement) return;
 
-    // 터치한 위치의 요소 찾기
     const touch = e.changedTouches[0];
-    draggedTouchElement.style.display = 'none'; // 임시로 숨김
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    draggedTouchElement.style.display = ''; // 다시 표시
 
-    // 가장 가까운 드롭 영역 찾기
+    // 드롭 위치의 요소를 찾기 위해 잠시 숨김
+    draggedTouchElement.style.display = 'none';
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    draggedTouchElement.style.display = '';
+
+    // 가장 가까운 드롭 컨테이너 찾기
     const dropContainer = elementBelow?.closest('.shuffled-words-container, .answer-words-container, .category-drop-zone, .unclassified-words-container');
+
+    // 스타일 초기화
+    draggedTouchElement.classList.remove('touch-dragging');
+    draggedTouchElement.style.left = '';
+    draggedTouchElement.style.top = '';
+    document.body.style.overflow = ''; // 페이지 스크롤 복원
 
     if (dropContainer && dropContainer !== draggedTouchElement.parentNode) {
         if (draggedTouchElement.tagName.toLowerCase() !== 'p') {
             dropContainer.appendChild(draggedTouchElement);
         }
         
-        // 현재 퀴즈 타입에 따라 다른 완료 체크 함수 호출
+        // 퀴즈 완료 여부 확인
         const quizType = quizzes[currentQuiz].type;
         if (quizType === 'word_sort') {
             checkWordSortCompletion();
@@ -1104,24 +1117,10 @@ function handleTouchEnd(e) {
         }
     }
 
-    // 스타일 복원
-    draggedTouchElement.style.position = '';
-    draggedTouchElement.style.left = '';
-    draggedTouchElement.style.top = '';
-    draggedTouchElement.style.opacity = '1';
-    draggedTouchElement.style.zIndex = '';
-
     draggedTouchElement = null;
 }
+// ===================================
 
-
-function handleContainerTouchMove(e) {
-   // 컨테이너에서의 터치 이동 처리
-}
-
-function handleContainerTouchEnd(e) {
-   // 컨테이너에서의 터치 종료 처리
-}
 
 // 단어 정렬 완료 확인
 function checkWordSortCompletion() {
