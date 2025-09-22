@@ -485,6 +485,50 @@ body {
 
 }
 
+/* style.css 파일 맨 아래에 추가 */
+
+.resume-screen {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-image: url('images/start.png');
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    color: white;
+}
+
+.resume-screen h2 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: #ffd700;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+}
+
+.resume-screen p {
+    font-size: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.resume-btn {
+    padding: 1.2rem 2.5rem;
+    font-size: 2rem;
+    background: linear-gradient(45deg, #4caf50, #2e7d32);
+    color: white;
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.resume-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
 
 
 
