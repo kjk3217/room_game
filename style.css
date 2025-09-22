@@ -88,6 +88,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100%;
+    padding-bottom: 15vh;
     background-image: url('images/start.png');
     background-size: cover;
     background-position: center;
@@ -483,4 +484,5 @@ body {
     .top-ui { flex-direction: column; gap: 0.5rem; }
 
 }
+
 
