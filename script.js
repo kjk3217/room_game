@@ -1950,7 +1950,7 @@ function showTransitionWithVideo(videoKey, callback) {
                video.src = '';
            }, 500);
        }
-   }, 5000);
+   }, 7000);
 }
 
 // 키보드 이벤트 처리
@@ -1997,3 +1997,4 @@ window.addEventListener('load', function() {
        }
    }
 });
+
