@@ -117,6 +117,23 @@ const quizzes = {
     }
 };
 
+// === ✨ 전체 화면 실행을 위한 함수 추가 ✨ ===
+function requestFullScreenAndStart() {
+    const elem = document.documentElement; // 전체 페이지를 대상으로 함
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().then(startGame).catch(startGame);
+    } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen().then(startGame).catch(startGame);
+    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
+        elem.webkitRequestFullscreen().then(startGame).catch(startGame);
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen().then(startGame).catch(startGame);
+    } else {
+        // 전체 화면 API를 지원하지 않는 경우 바로 게임 시작
+        startGame();
+    }
+}
+// ===========================================
 
 // 사운드 초기화 및 로드
 function initializeSounds() {
