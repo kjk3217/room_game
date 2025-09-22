@@ -294,10 +294,10 @@ body {
 
 /* === ✨ 태블릿 비율에 맞게 위치 재조정 (단위: %) ✨ === */
 /* 방1 오브젝트 위치 */
-.tree { top: 28%; left: 7%; width: 12%; height: 55%; }
-.jar { top: 58%; left: 44%; width: 7%; height: 18%; }
-.candle { top: 72%; right: 9%; width: 4%; height: 10%; }
-.door1 { top: 29%; right: 19%; width: 12%; height: 40%; }
+.tree { top: 28%; left: 6%; width: 8%; height: 45%; }
+.jar { top: 48%; left: 40%; width: 7%; height: 15%; }
+.candle { top: 65%; right: 9%; width: 4%; height: 10%; }
+.door1 { top: 22%; right: 15%; width: 12%; height: 40%; }
 
 /* 방2 오브젝트 위치 */
 .hourglass { top: 78%; left: 45%; width: 4%; height: 16%; }
@@ -484,5 +484,6 @@ body {
     .top-ui { flex-direction: column; gap: 0.5rem; }
 
 }
+
 
 
