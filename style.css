@@ -762,3 +762,65 @@ body {
     color: #ff4d4d; /* 눈에 잘 띄는 밝은 빨간색 */
     font-weight: bold; /* 글자를 굵게 만듭니다 */
 }
+
+/* 기존 style.css 파일의 맨 아래에 이 코드를 추가하세요. */
+
+/* === ✨ 단어 분류 게임 스타일 (4번 퀴즈용) ✨ === */
+.word-classification-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.unclassified-words-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    border: 2px solid #6a1b9a;
+    min-height: 100px;
+    justify-content: center;
+    align-items: center; /* 단어를 중앙에 정렬 */
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.drop-zones-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    width: 100%;
+}
+
+/* 새 코드 (수정 후) */
+.category-drop-zone {
+    flex: 1;
+    min-height: 200px;
+    padding: 20px;
+    background: rgba(0,100,0,0.2);
+    border-radius: 15px;
+    border: 2px dashed #4caf50;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: row;        /* 👈 세로(column)에서 가로(row)로 변경 */
+    flex-wrap: wrap;            /* 👈 공간이 좁으면 다음 줄로 넘어가도록 추가 */
+    align-content: flex-start;  /* 👈 아이템들을 위쪽부터 채우도록 변경 */
+    justify-content: center;    /* 👈 단어들을 보기 좋게 가운데 정렬하기 위해 추가 */
+    gap: 10px;
+}
+
+.category-drop-zone h3 {
+    color: #87ceeb;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    width: 100%;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(135, 206, 235, 0.5);
+}
+
+/* word-element 스타일은 기존 단어 정렬 게임의 것을 재활용합니다. */

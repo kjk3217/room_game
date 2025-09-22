@@ -1,3 +1,5 @@
+// 기존 script.js 파일의 모든 내용을 지우고 아래 코드를 붙여넣으세요.
+
 // 게임 상태
 let currentRoom = 1;
 let completedQuizzes = JSON.parse(localStorage.getItem('completedQuizzes')) || [];
@@ -44,10 +46,15 @@ const quizzes = {
         type: "single"
     },
     4: {
-        title: "첫 번째 방 탈출",
-        question: "첫 번째 방을 탈출하기 위한 <span class='highlight-red'>비밀번호</span>를 입력하세요. (힌트: '체언'.)",
-        answers: ["3"],
-        type: "password"
+        title: "품사 분류하기 (첫 번째 방 탈출)",
+        question: "주어진 단어들을 '형태가 변하는 말'과 '형태가 변하지 않는 말'로 올바르게 분류하여 방을 탈출하세요.",
+        type: "word_classification",
+        words: ['먹다', '예쁘다', '날다', '슬프다', '공부하다', '하늘', '나무', '아주', '와', '책'],
+        categories: ['형태가 변함', '형태가 변하지 않음'],
+        correctClassification: {
+            '형태가 변함': ['먹다', '예쁘다', '날다', '슬프다', '공부하다'],
+            '형태가 변하지 않음': ['하늘', '나무', '아주', '와', '책']
+        }
     },
     // 방 2: 체언과 용언
     5: {
@@ -370,11 +377,8 @@ function openQuiz(quizId) {
     const modalContent = document.querySelector('.modal-content');
     
     // 퀴즈 타입별로 크기 다르게 설정
-    if (quiz.type === 'matching') {
-        modalContent.style.maxWidth = '1300px';  // 매칭 게임은 크게
-        modalContent.style.width = '95%';
-    } else if (quiz.type === 'word_sort') {
-        modalContent.style.maxWidth = '1300px';  // 단어 정렬도 크게
+    if (quiz.type === 'matching' || quiz.type === 'word_sort' || quiz.type === 'word_classification') {
+        modalContent.style.maxWidth = '1300px';  // 복잡한 퀴즈는 크게
         modalContent.style.width = '95%';
     } else if (quiz.type === 'four') {
         modalContent.style.maxWidth = '1000px';   // 4개 입력은 중간
@@ -470,6 +474,53 @@ function createCompletedQuizDisplay(quiz) {
         answerBox.style.lineHeight = '1.4';
         answerBox.textContent = `"${correctSentence}"`;
         answerContainer.appendChild(answerBox);
+    } else if (quiz.type === 'word_classification') {
+        // 단어 분류 퀴즈 정답 표시 추가
+        const classificationContainer = document.createElement('div');
+        classificationContainer.style.cssText = `
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 20px;
+        `;
+
+        Object.entries(quiz.correctClassification).forEach(([category, words]) => {
+            const categoryBox = document.createElement('div');
+            categoryBox.style.cssText = `
+                flex: 1;
+                background: rgba(0,255,0,0.1);
+                border: 2px solid #00ff00;
+                border-radius: 8px;
+                padding: 15px;
+            `;
+
+            const categoryTitle = document.createElement('h5');
+            categoryTitle.textContent = category;
+            categoryTitle.style.cssText = `
+                color: #00ff00;
+                font-size: 1.4rem;
+                text-align: center;
+                margin-bottom: 10px;
+            `;
+            categoryBox.appendChild(categoryTitle);
+
+            words.forEach(word => {
+                const wordItem = document.createElement('div');
+                wordItem.textContent = word;
+                wordItem.style.cssText = `
+                    background: rgba(0,255,0,0.2);
+                    padding: 8px;
+                    text-align: center;
+                    border-radius: 5px;
+                    margin-top: 5px;
+                    font-size: 1.2rem;
+                    color: #fff;
+                `;
+                categoryBox.appendChild(wordItem);
+            });
+            classificationContainer.appendChild(categoryBox);
+        });
+        answerContainer.appendChild(classificationContainer);
     } else if (quiz.type === 'four') {
         // 4개 정답인 경우
         const answersGrid = document.createElement('div');
@@ -538,6 +589,120 @@ function createCompletedQuizDisplay(quiz) {
         closeBtn.style.background = 'linear-gradient(45deg, #4caf50, #2e7d32)';
     }
 }
+
+
+// 새로운 함수: 단어 분류 게임 생성 (4번 퀴즈용)
+function createWordClassificationGame() {
+    const inputContainer = document.getElementById('quizInput');
+    inputContainer.innerHTML = '';
+
+    const quiz = quizzes[currentQuiz];
+
+    // 게임 컨테이너 생성
+    const gameContainer = document.createElement('div');
+    gameContainer.className = 'word-classification-container';
+
+    // 1. 분류되지 않은 단어 영역
+    const unclassifiedContainer = document.createElement('div');
+    unclassifiedContainer.className = 'unclassified-words-container';
+    
+    const instructionText = document.createElement('p');
+    instructionText.textContent = '아래 단어들을 알맞은 곳으로 옮기세요.';
+    instructionText.style.cssText = `
+        text-align: center;
+        color: #ffd700;
+        font-size: 1.2rem;
+        width: 100%;
+        margin-bottom: 15px;
+    `;
+    unclassifiedContainer.appendChild(instructionText);
+
+    // 단어 요소들 생성 (섞어서)
+    const shuffledWords = [...quiz.words].sort(() => Math.random() - 0.5);
+    shuffledWords.forEach((word, index) => {
+        const wordElement = createWordElement(word, index); // 기존 함수 재활용
+        unclassifiedContainer.appendChild(wordElement);
+    });
+
+    // 2. 분류 영역 (드롭존)
+    const dropZonesContainer = document.createElement('div');
+    dropZonesContainer.className = 'drop-zones-container';
+
+    quiz.categories.forEach(category => {
+        const dropZone = document.createElement('div');
+        dropZone.className = 'category-drop-zone';
+        dropZone.dataset.category = category;
+
+        const title = document.createElement('h3');
+        title.textContent = category;
+        dropZone.appendChild(title);
+        
+        dropZonesContainer.appendChild(dropZone);
+    });
+
+    // 컨테이너 조립
+    gameContainer.appendChild(unclassifiedContainer);
+    gameContainer.appendChild(dropZonesContainer);
+    inputContainer.appendChild(gameContainer);
+
+    // 드롭 영역 설정 (unclassified 포함 3개)
+    setupDropZones(unclassifiedContainer, ...dropZonesContainer.querySelectorAll('.category-drop-zone'));
+}
+
+
+// =================================================================
+// ✨ 4번 문제 정답 확인 로직 수정 ✨
+// =================================================================
+function checkWordClassificationCompletion() {
+    const quiz = quizzes[currentQuiz];
+    const unclassifiedContainer = document.querySelector('.unclassified-words-container');
+
+    // 아직 옮겨야 할 단어가 남아있으면 확인하지 않음 (p 태그는 제외하고 계산)
+    if (unclassifiedContainer.querySelectorAll('.word-element').length > 0) {
+        return;
+    }
+
+    let allCorrect = true;
+    document.querySelectorAll('.category-drop-zone').forEach(zone => {
+        const category = zone.dataset.category;
+        const correctWordsForCategory = quiz.correctClassification[category];
+        const wordsInZone = Array.from(zone.querySelectorAll('.word-element')).map(el => el.dataset.word);
+
+        if (wordsInZone.length !== correctWordsForCategory.length) {
+            allCorrect = false;
+        } else {
+            for (const word of wordsInZone) {
+                if (!correctWordsForCategory.includes(word)) {
+                    allCorrect = false;
+                    break;
+                }
+            }
+        }
+    });
+
+    // 모든 단어가 올바른 위치에 놓였을 때만 실행
+    if (allCorrect) {
+        // 정답 시각적 효과 (7번 문제와 동일하게)
+        const wordElements = document.querySelectorAll('.category-drop-zone .word-element');
+        wordElements.forEach((el, index) => {
+            setTimeout(() => {
+                el.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
+                el.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    el.style.transform = 'scale(1)';
+                }, 200);
+            }, index * 100);
+        });
+        
+        // 애니메이션이 끝난 후 정답 처리
+        setTimeout(() => {
+            correctAnswer();
+        }, wordElements.length * 100 + 500);
+    }
+    // 오답일 경우: 아무런 메시지나 효과 없이 사용자가 재배치하도록 둡니다.
+}
+// =================================================================
+
 
 // 매칭 게임 생성
 function createMatchingGame() {
@@ -772,21 +937,25 @@ function createWordElement(word, index) {
    return wordElement;
 }
 
-// 드롭 영역 설정
-function setupDropZones(shuffledContainer, answerContainer) {
-   [shuffledContainer, answerContainer].forEach(container => {
-       container.addEventListener('dragover', handleDragOver);
-       container.addEventListener('drop', handleDrop);
-       
-       // 모바일 터치 지원
-       container.addEventListener('touchmove', handleContainerTouchMove, { passive: false });
-       container.addEventListener('touchend', handleContainerTouchEnd, { passive: false });
+// 드롭 영역 설정 (가변 인자 ...containers 사용)
+function setupDropZones(...containers) {
+   containers.forEach(container => {
+       if (container) {
+            container.addEventListener('dragover', handleDragOver);
+            container.addEventListener('drop', handleDrop);
+            
+            // 모바일 터치 지원
+            container.addEventListener('touchmove', handleContainerTouchMove, { passive: false });
+            container.addEventListener('touchend', handleContainerTouchEnd, { passive: false });
+       }
    });
 }
 
+
 // 드래그 시작
 function handleDragStart(e) {
-   e.dataTransfer.setData('text/plain', e.target.dataset.word);
+   // 드래그하는 요소의 원래 인덱스를 데이터로 전달
+   e.dataTransfer.setData('text/plain', e.target.dataset.index);
    e.target.style.opacity = '0.5';
    e.target.style.cursor = 'grabbing';
 }
@@ -800,34 +969,50 @@ function handleDragEnd(e) {
 // 드래그 오버
 function handleDragOver(e) {
    e.preventDefault();
-   e.currentTarget.style.background = e.currentTarget.classList.contains('answer-words-container') 
-       ? 'rgba(0,150,0,0.3)' 
-       : 'rgba(0,0,0,0.4)';
+   // 드롭 영역에 따라 다른 배경색 피드백
+   if (e.currentTarget.classList.contains('answer-words-container') || e.currentTarget.classList.contains('category-drop-zone')) {
+        e.currentTarget.style.background = 'rgba(0,150,0,0.3)';
+   } else {
+        e.currentTarget.style.background = 'rgba(0,0,0,0.4)';
+   }
 }
 
 // 드롭 처리
 function handleDrop(e) {
-   e.preventDefault();
-   const word = e.dataTransfer.getData('text/plain');
-   const draggedElement = document.querySelector(`[data-word="${word}"]`);
-   
-   if (draggedElement && e.currentTarget !== draggedElement.parentNode) {
-       e.currentTarget.appendChild(draggedElement);
-       checkWordSortCompletion();
-   }
-   
-   // 배경색 복원
-   resetDropZoneBackground(e.currentTarget);
+    e.preventDefault();
+    const draggedIndex = e.dataTransfer.getData('text/plain');
+    const draggedElement = document.querySelector(`.word-element[data-index='${draggedIndex}']`);
+    
+    if (draggedElement && e.currentTarget !== draggedElement.parentNode) {
+        // p 태그는 옮겨지지 않도록 예외 처리
+        if (draggedElement.tagName.toLowerCase() !== 'p') {
+            e.currentTarget.appendChild(draggedElement);
+        }
+        
+        // 현재 퀴즈 타입에 따라 다른 완료 체크 함수 호출
+        const quizType = quizzes[currentQuiz].type;
+        if (quizType === 'word_sort') {
+            checkWordSortCompletion();
+        } else if (quizType === 'word_classification') {
+            checkWordClassificationCompletion();
+        }
+    }
+    
+    // 배경색 복원
+    resetDropZoneBackground(e.currentTarget);
 }
 
 // 드롭 영역 배경색 복원
 function resetDropZoneBackground(container) {
-   if (container.classList.contains('answer-words-container')) {
-       container.style.background = 'rgba(0,100,0,0.2)';
-   } else {
-       container.style.background = 'rgba(0,0,0,0.3)';
-   }
+    if (container.classList.contains('answer-words-container') || container.classList.contains('category-drop-zone')) {
+        container.style.background = 'rgba(0,100,0,0.2)';
+    } else if (container.classList.contains('unclassified-words-container')) {
+        container.style.background = 'rgba(0,0,0,0.3)';
+    } else {
+        container.style.background = 'rgba(0,0,0,0.3)';
+    }
 }
+
 
 // 터치 이벤트 지원 (모바일)
 let draggedTouchElement = null;
@@ -856,27 +1041,42 @@ function handleTouchMove(e) {
 }
 
 function handleTouchEnd(e) {
-   e.preventDefault();
-   if (!draggedTouchElement) return;
-   
-   const touch = e.changedTouches[0];
-   const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-   const dropContainer = elementBelow?.closest('.shuffled-words-container, .answer-words-container');
-   
-   if (dropContainer && dropContainer !== draggedTouchElement.parentNode) {
-       dropContainer.appendChild(draggedTouchElement);
-       checkWordSortCompletion();
-   }
-   
-   // 스타일 복원
-   draggedTouchElement.style.position = '';
-   draggedTouchElement.style.left = '';
-   draggedTouchElement.style.top = '';
-   draggedTouchElement.style.opacity = '1';
-   draggedTouchElement.style.zIndex = '';
-   
-   draggedTouchElement = null;
+    e.preventDefault();
+    if (!draggedTouchElement) return;
+
+    // 터치한 위치의 요소 찾기
+    const touch = e.changedTouches[0];
+    draggedTouchElement.style.display = 'none'; // 임시로 숨김
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    draggedTouchElement.style.display = ''; // 다시 표시
+
+    // 가장 가까운 드롭 영역 찾기
+    const dropContainer = elementBelow?.closest('.shuffled-words-container, .answer-words-container, .category-drop-zone, .unclassified-words-container');
+
+    if (dropContainer && dropContainer !== draggedTouchElement.parentNode) {
+        if (draggedTouchElement.tagName.toLowerCase() !== 'p') {
+            dropContainer.appendChild(draggedTouchElement);
+        }
+        
+        // 현재 퀴즈 타입에 따라 다른 완료 체크 함수 호출
+        const quizType = quizzes[currentQuiz].type;
+        if (quizType === 'word_sort') {
+            checkWordSortCompletion();
+        } else if (quizType === 'word_classification') {
+            checkWordClassificationCompletion();
+        }
+    }
+
+    // 스타일 복원
+    draggedTouchElement.style.position = '';
+    draggedTouchElement.style.left = '';
+    draggedTouchElement.style.top = '';
+    draggedTouchElement.style.opacity = '1';
+    draggedTouchElement.style.zIndex = '';
+
+    draggedTouchElement = null;
 }
+
 
 function handleContainerTouchMove(e) {
    // 컨테이너에서의 터치 이동 처리
@@ -1075,6 +1275,8 @@ function createQuizInput(type) {
        createMatchingGame();
    } else if (type === 'word_sort') {
        createWordSortGame();
+   } else if (type === 'word_classification') { // 새 퀴즈 유형 추가
+       createWordClassificationGame();
    } else if (type === 'textarea') {
        const textarea = document.createElement('textarea');
        textarea.id = 'quizAnswer';
@@ -1108,11 +1310,8 @@ function checkAnswer() {
    const quiz = quizzes[currentQuiz];
    let userAnswer = '';
    
-   if (quiz.type === 'matching') {
-       // 매칭 게임은 자동으로 체크되므로 여기서는 처리하지 않음
-       return;
-   } else if (quiz.type === 'word_sort') {
-       // 단어 정렬 게임은 자동으로 체크되므로 여기서는 처리하지 않음
+    // 드래그 앤 드롭 퀴즈는 자동 체크되므로 여기서는 처리하지 않음
+   if (quiz.type === 'matching' || quiz.type === 'word_sort' || quiz.type === 'word_classification') {
        return;
    } else if (quiz.type === 'four') {
        const answers = [];
@@ -1258,7 +1457,9 @@ function normalizeAnswer(answer) {
 
 // 정답 처리
 function correctAnswer() {
-   completedQuizzes.push(currentQuiz);
+   if (!completedQuizzes.includes(currentQuiz)) {
+        completedQuizzes.push(currentQuiz);
+   }
    localStorage.setItem('completedQuizzes', JSON.stringify(completedQuizzes));
    
    markQuizCompleted(currentQuiz);
