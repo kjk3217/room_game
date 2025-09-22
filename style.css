@@ -474,7 +474,7 @@ body {
 .game-over-content p { font-size: 1.5rem; }
 
 .restart-btn {
-    position: absolute; bottom: 4rem;
+    position: absolute; bottom: 7rem;
     left: 50%; transform: translateX(-50%);
     padding: 1.2rem 3rem;
     background: linear-gradient(45deg, #4caf50, #2e7d32);
@@ -538,3 +538,4 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
+
