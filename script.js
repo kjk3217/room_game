@@ -1860,7 +1860,7 @@ function restartGame() {
 function showTransitionWithVideo(videoKey, callback) {
    const transition = document.getElementById('screenTransition');
    const video = document.getElementById('transitionVideo');
-   
+   video.muted = false;
    // 전환 효과 시작
    transition.classList.add('active');
    
@@ -1997,4 +1997,5 @@ window.addEventListener('load', function() {
        }
    }
 });
+
 
