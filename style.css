@@ -300,9 +300,9 @@ body {
 .door1 { top: 22%; right: 15%; width: 12%; height: 40%; }
 
 /* 방2 오브젝트 위치 */
-.hourglass { top: 78%; left: 45%; width: 4%; height: 16%; }
-.box { top: 62%; right: 14%; width: 11%; height: 16%; }
-.mask { top: 43%; left: 60%; width: 7%; height: 14%; }
+.hourglass { top: 75%; left: 43%; width: 4%; height: 16%; }
+.box { top: 62%; right: 14%; width: 13%; height: 18%; }
+.mask { top: 41%; left: 58%; width: 7%; height: 14%; }
 .door2 { top: 30%; left: 9%; width: 7%; height: 26%; }
 
 /* 방3 오브젝트 위치 */
@@ -484,6 +484,7 @@ body {
     .top-ui { flex-direction: column; gap: 0.5rem; }
 
 }
+
 
 
 
