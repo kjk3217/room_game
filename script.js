@@ -214,6 +214,7 @@ function stopBackgroundMusic() {
 
 // 게임 시작 - 비디오 전환 포함 (텍스트 제거)
 function startGame() {
+    requestFullScreen(); // ✨ 시작 시 전체화면 요청
     console.log('게임 시작 버튼 클릭됨');
     
     // 비디오 전환 사용 (텍스트 없이)
@@ -232,6 +233,28 @@ function startGame() {
         }, 800);
     });
 }
+
+// ✨ 게임 이어하기 함수 (새로 추가) ✨
+function requestFullScreenAndResume() {
+    requestFullScreen(); // 전체화면 요청
+    
+    // 화면 전환
+    const resumeScreen = document.getElementById('resumeScreen');
+    resumeScreen.style.transition = 'opacity 0.5s ease';
+    resumeScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        resumeScreen.style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('gameScreen').classList.add('active');
+            loadGameState();
+            updateUI();
+            startRoomTimer(); // 저장된 게임에서도 타이머 시작
+        }, 50);
+    }, 500);
+}
+
 
 // 타이머 초기화
 function initTimer() {
@@ -1966,34 +1989,28 @@ document.getElementById('quizModal').addEventListener('click', function(e) {
 
 // 페이지 로드 시 초기화 (사운드 초기화 추가 및 전체 화면 요청)
 window.addEventListener('load', function() {
-   // 사운드 초기화
-   initializeSounds();
-
-   // ✨ 페이지 로드 시 전체 화면 요청 ✨
-   requestFullScreen();
-   
-   const gameCompleted = localStorage.getItem('gameCompleted');
-   if (gameCompleted) {
-       document.getElementById('startScreen').style.display = 'none';
-       document.getElementById('endingScreen').style.display = 'flex';
-       setTimeout(() => {
-           document.getElementById('endingScreen').classList.add('active');
-           // 엔딩 화면에서도 배경음악 재생
-           playBackgroundMusic();
-       }, 100);
-   } else {
-       const savedRoom = localStorage.getItem('currentRoom');
-       const savedQuizzes = localStorage.getItem('completedQuizzes');
-       
-       if (savedRoom && savedQuizzes) {
-           document.getElementById('startScreen').style.display = 'none';
-           document.getElementById('gameScreen').style.display = 'block';
-           setTimeout(() => {
-               document.getElementById('gameScreen').classList.add('active');
-               loadGameState();
-               updateUI();
-               startRoomTimer(); // 저장된 게임에서도 타이머 시작
-           }, 50);
-       }
-   }
-});
+    // 사운드 초기화
+    initializeSounds();
+ 
+    const gameCompleted = localStorage.getItem('gameCompleted');
+    if (gameCompleted) {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('endingScreen').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('endingScreen').classList.add('active');
+            playBackgroundMusic();
+        }, 100);
+    } else {
+        const savedRoom = localStorage.getItem('currentRoom');
+        const savedQuizzes = localStorage.getItem('completedQuizzes');
+        
+        if (savedRoom && savedQuizzes) {
+            // ✨ 저장된 게임이 있으면 '이어서 하기' 화면 표시
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('resumeScreen').style.display = 'flex';
+        } else {
+            // 저장된 게임이 없으면 시작 화면 표시 (기존 로직)
+            document.getElementById('startScreen').style.display = 'flex';
+        }
+    }
+ });
