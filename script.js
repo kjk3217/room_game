@@ -118,19 +118,16 @@ const quizzes = {
 };
 
 // === ✨ 전체 화면 실행을 위한 함수 추가 ✨ ===
-function requestFullScreenAndStart() {
+function requestFullScreen() {
     const elem = document.documentElement; // 전체 페이지를 대상으로 함
     if (elem.requestFullscreen) {
-        elem.requestFullscreen().then(startGame).catch(startGame);
+        elem.requestFullscreen().catch(console.error);
     } else if (elem.mozRequestFullScreen) { // Firefox
-        elem.mozRequestFullScreen().then(startGame).catch(startGame);
+        elem.mozRequestFullScreen();
     } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
-        elem.webkitRequestFullscreen().then(startGame).catch(startGame);
+        elem.webkitRequestFullscreen();
     } else if (elem.msRequestFullscreen) { // IE/Edge
-        elem.msRequestFullscreen().then(startGame).catch(startGame);
-    } else {
-        // 전체 화면 API를 지원하지 않는 경우 바로 게임 시작
-        startGame();
+        elem.msRequestFullscreen();
     }
 }
 // ===========================================
@@ -1967,10 +1964,13 @@ document.getElementById('quizModal').addEventListener('click', function(e) {
    }
 });
 
-// 페이지 로드 시 초기화 (사운드 초기화 추가)
+// 페이지 로드 시 초기화 (사운드 초기화 추가 및 전체 화면 요청)
 window.addEventListener('load', function() {
    // 사운드 초기화
    initializeSounds();
+
+   // ✨ 페이지 로드 시 전체 화면 요청 ✨
+   requestFullScreen();
    
    const gameCompleted = localStorage.getItem('gameCompleted');
    if (gameCompleted) {
@@ -1997,5 +1997,3 @@ window.addEventListener('load', function() {
        }
    }
 });
-
-
