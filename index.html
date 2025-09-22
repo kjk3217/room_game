@@ -8,59 +8,51 @@
 </head>
 <body>
     <div class="container">
-        <!-- 화면 전환 효과 - 비디오만 (텍스트 제거) -->
         <div class="screen-transition" id="screenTransition">
-            <video class="transition-video" id="transitionVideo" autoplay>
+            <video class="transition-video" id="transitionVideo" autoplay muted playsinline>
                 <source src="" type="video/mp4">
             </video>
         </div>
 
-        <!-- 시작 화면 - 로고와 시작 버튼만 -->
         <div class="start-screen" id="startScreen">
             <img src="images/logo.png" alt="게임 로고" class="game-logo">
             <button class="start-btn" onclick="startGame()">START</button>
         </div>
 
-        <!-- 게임 화면 -->
         <div class="game-screen" id="gameScreen">
-            <!-- 상단 UI -->
-            <div class="top-ui">
-                <div class="progress" id="progress">0/12 완료</div>
-                <div class="timer-container">
-                    <div class="timer" id="timer">10:00</div>
-                    <div class="timer-warning" id="timerWarning" style="display: none;">시간이 부족합니다!</div>
+            <div class="game-wrapper">
+                <div class="top-ui">
+                    <div class="progress" id="progress">0/12 완료</div>
+                    <div class="timer-container">
+                        <div class="timer" id="timer">10:00</div>
+                        <div class="timer-warning" id="timerWarning" style="display: none;">시간이 부족합니다!</div>
+                    </div>
+                    <div class="room-info" id="roomInfo">방 1</div>
                 </div>
-                <div class="room-info" id="roomInfo">방 1</div>
-            </div>
 
-            <!-- 방1 -->
-            <div class="room room1" id="room1">
-                <div class="clickable tree" onclick="openQuiz(1)">🌳 나무</div>
-                <div class="clickable jar" onclick="openQuiz(2)">🏺 항아리</div>
-                <div class="clickable candle" onclick="openQuiz(3)">🕯️ 촛불</div>
-                <div class="clickable door1" onclick="openQuiz(4)">🚪 문</div>
-            </div>
+                <div class="room room1 active" id="room1">
+                    <div class="clickable tree" onclick="openQuiz(1)"></div>
+                    <div class="clickable jar" onclick="openQuiz(2)"></div>
+                    <div class="clickable candle" onclick="openQuiz(3)"></div>
+                    <div class="clickable door1" onclick="openQuiz(4)"></div>
+                </div>
 
-            <!-- 방2 -->
-            <div class="room room2" id="room2" style="display: none;">
-                <div class="clickable hourglass" onclick="openQuiz(5)">⏳ 모래시계</div>
-                <div class="clickable box" onclick="openQuiz(6)">📦 나무상자</div>
-                <div class="clickable mask" onclick="openQuiz(7)">🎭 가면</div>
-                <div class="clickable door2" onclick="openQuiz(8)">🚪 문</div>
-            </div>
+                <div class="room room2" id="room2">
+                    <div class="clickable hourglass" onclick="openQuiz(5)"></div>
+                    <div class="clickable box" onclick="openQuiz(6)"></div>
+                    <div class="clickable mask" onclick="openQuiz(7)"></div>
+                    <div class="clickable door2" onclick="openQuiz(8)"></div>
+                </div>
 
-            <!-- 방3 -->
-            <div class="room room3" id="room3" style="display: none;">
-                <div class="clickable bible" onclick="openQuiz(9)">📖 성경책</div>
-                <div class="clickable shield" onclick="openQuiz(10)">🛡️ 방패</div>
-                <div class="clickable cross" onclick="openQuiz(11)">✝️ 십자가</div>
-                <div class="clickable door3" onclick="openQuiz(12)">🚪 문</div>
+                <div class="room room3" id="room3">
+                    <div class="clickable bible" onclick="openQuiz(9)"></div>
+                    <div class="clickable shield" onclick="openQuiz(10)"></div>
+                    <div class="clickable cross" onclick="openQuiz(11)"></div>
+                    <div class="clickable door3" onclick="openQuiz(12)"></div>
+                </div>
             </div>
-
             <button class="next-room-btn" id="nextRoomBtn" onclick="nextRoom()">다음 방으로</button>
         </div>
-
-        <!-- 게임오버 화면 -->
         <div class="game-over-screen" id="gameOverScreen">
             <div class="game-over-content">
                 <h2>⏰ 시간 종료! ⏰</h2>
@@ -70,7 +62,6 @@
             </div>
         </div>
 
-        <!-- 엔딩 화면 -->
         <div class="ending-screen" id="endingScreen">
             <div class="ending-content">
                 <h2>🎉 축하합니다! 🎉</h2>
@@ -80,7 +71,6 @@
         </div>
     </div>
 
-    <!-- 퀴즈 모달 -->
     <div class="modal" id="quizModal">
         <div class="modal-content">
             <h3 id="quizTitle"></h3>
