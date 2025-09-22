@@ -309,7 +309,7 @@ body {
 .bible { top: 39%; right: 10%; width: 9%; height: 11%; }
 .shield { top: 41%; left: 28%; width: 9%; height: 17%; }
 .cross { top: 22%; left: 13%; width: 5%; height: 40%; }
-.door3 { top: 25%; right: 26%; width: 10%; height: 40%; }
+.door3 { top: 18%; right: 26%; width: 10%; height: 40%; }
 /* ======================================================= */
 
 /* 모달 */
@@ -528,6 +528,7 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
+
 
 
 
