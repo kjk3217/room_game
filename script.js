@@ -385,7 +385,7 @@ function showHintMessage(quizId) {
     }
 }
 
-// ✨ 현재 활성화되어야 할 오브젝트 활성화
+// ✨ 현재 활성화되어야 할 오브젝트 활성화 (수정됨)
 function activateCurrentObject() {
     console.log('=== activateCurrentObject 호출 ===');
     const roomOrder = roomObjectOrder[currentRoom];
@@ -402,22 +402,38 @@ function activateCurrentObject() {
         
         if (!completedQuizzes.includes(quizId)) {
             console.log('✅ 퀴즈', quizId, '활성화 시작');
-            activateObject(quizId);
-            showHintMessage(quizId);
+            
+            // 혹시 모를 중복 활성화 방지: 먼저 모든 active 제거
+            document.querySelectorAll('.clickable.active').forEach(el => {
+                if (!el.classList.contains('completed')) {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // 약간의 딜레이 후 활성화 (터치 이벤트 처리를 위해)
+            setTimeout(() => {
+                activateObject(quizId);
+                showHintMessage(quizId);
+            }, 100);
         } else {
-            console.log('⚠️ 퀴즈', quizId, '이미 완료됨');
+            console.log('⚠️ 퀴즈', quizId, '이미 완료됨 - 다음으로 넘어감');
+            // 이미 완료된 퀴즈라면 다음으로
+            currentObjectIndex[currentRoom]++;
+            localStorage.setItem('currentObjectIndex', JSON.stringify(currentObjectIndex));
+            activateCurrentObject();  // 재귀 호출
         }
     } else {
-        console.log('⚠️ 인덱스가 범위를 벗어남');
+        console.log('⚠️ 인덱스가 범위를 벗어남 - 방 완료 확인');
+        checkRoomCompletion();
     }
 }
 
-// ✨ 특정 오브젝트 활성화
+// ✨ 특정 오브젝트 활성화 (수정됨)
 function activateObject(quizId) {
     console.log('=== activateObject 호출: 퀴즈', quizId, '===');
     
-    // 모든 오브젝트를 비활성화
-    document.querySelectorAll('.clickable').forEach(el => {
+    // 완료되지 않은 오브젝트만 비활성화
+    document.querySelectorAll('.clickable:not(.completed)').forEach(el => {
         el.classList.remove('active');
     });
     
@@ -439,6 +455,12 @@ function activateObject(quizId) {
             setTimeout(() => {
                 const hasActive = targetElement.classList.contains('active');
                 console.log('0.1초 후 active 확인:', hasActive);
+                
+                // 혹시 모를 버그 방지: 다시 한 번 강제로 활성화
+                if (!hasActive && !targetElement.classList.contains('completed')) {
+                    targetElement.classList.add('active');
+                    console.log('⚠️ 재활성화 시도');
+                }
             }, 100);
         }
     } else {
@@ -1581,7 +1603,7 @@ function normalizeAnswer(answer) {
                .replace(/[이가을를의에서]/g, '');
 }
 
-// 정답 처리
+// 정답 처리 (수정됨)
 function correctAnswer() {
    console.log('=== correctAnswer 호출 ===');
    console.log('현재 퀴즈 ID:', currentQuiz);
@@ -1614,15 +1636,25 @@ function correctAnswer() {
        localStorage.setItem('currentObjectIndex', JSON.stringify(currentObjectIndex));
        
        console.log('다음 인덱스로 설정:', nextIndex);
+       console.log('다음 활성화할 퀴즈 ID:', roomOrder[nextIndex]);
        console.log('업데이트된 currentObjectIndex:', currentObjectIndex);
        
-       // 1초 후 다음 오브젝트 활성화
+       // 약간의 딜레이 후 다음 오브젝트 활성화
        setTimeout(() => {
-           console.log('--- 1초 후 activateCurrentObject 호출 ---');
+           console.log('--- 0.5초 후 activateCurrentObject 호출 ---');
+           // 현재 활성화된 오브젝트가 있다면 제거
+           document.querySelectorAll('.clickable.active').forEach(el => {
+               if (!el.classList.contains('completed')) {
+                   el.classList.remove('active');
+               }
+           });
+           // 다음 오브젝트 활성화
            activateCurrentObject();
-       }, 1000);
+       }, 500);  // 1초에서 0.5초로 단축
    } else {
        console.log('⚠️ 마지막 퀴즈 완료 또는 인덱스 오류');
+       console.log('completedIndex:', completedIndex);
+       console.log('roomOrder.length:', roomOrder.length);
        checkRoomCompletion();
    }
 }
@@ -2038,4 +2070,26 @@ window.addEventListener('load', function() {
             document.getElementById('startScreen').style.display = 'flex';
         }
     }
+});
+
+// ✨ 터치 이벤트 최적화
+document.addEventListener('DOMContentLoaded', function() {
+    // 모든 클릭 가능한 요소에 터치 이벤트 추가
+    const clickableElements = document.querySelectorAll('.clickable');
+    
+    clickableElements.forEach(element => {
+        // 터치엔드 이벤트 추가
+        element.addEventListener('touchend', function(e) {
+            // 드래그 중이 아닐 때만 클릭 이벤트 트리거
+            if (!draggedTouchElement) {
+                e.preventDefault();
+                // onclick 이벤트 강제 트리거
+                if (this.onclick) {
+                    this.onclick.call(this);
+                }
+            }
+        }, { passive: false });
+    });
+    
+    console.log('✅ 터치 이벤트 최적화 완료');
 });
