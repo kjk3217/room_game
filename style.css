@@ -539,3 +539,42 @@ body {
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
 
+/* === ✨ 순차 진행을 위한 스타일 (새로 추가) ✨ === */
+
+/* 아직 풀 수 없는 퀴즈 (잠김) */
+.clickable.locked {
+    filter: grayscale(100%) brightness(0.5);
+    cursor: not-allowed;
+}
+
+.clickable.locked:hover {
+    transform: none;
+    border-color: transparent;
+    animation: none; /* 호버 시 모든 애니메이션 제거 */
+}
+
+/* 다음에 풀어야 할 퀴즈 강조 효과 */
+@keyframes unlockedGlow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 255, 0, 0.4), 0 0 25px rgba(255, 255, 0, 0.3);
+        border-color: rgba(255, 255, 0, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 255, 0, 0.8), 0 0 40px rgba(255, 255, 0, 0.5);
+        border-color: rgba(255, 255, 0, 1);
+    }
+}
+
+.clickable.unlocked-glowing {
+    /* 기존 mysticalGlow 대신 unlockedGlow 애니메이션 적용 */
+    animation: unlockedGlow 2s ease-in-out infinite;
+    border: 3px solid rgba(255, 255, 0, 0.7);
+}
+
+/* 잠긴 퀴즈 클릭 시 흔들림 효과 */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px) rotate(-1deg); }
+    50% { transform: translateX(5px) rotate(1deg); }
+    75% { transform: translateX(-5px) rotate(-1deg); }
+}
