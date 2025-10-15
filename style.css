@@ -578,3 +578,43 @@ body {
     75% { transform: translateX(-5px) rotate(-1deg); }
 }
 
+/* style.css 파일 맨 아래에 추가 */
+
+/* 스토리 모달 스타일 */
+#storyModal .modal-content {
+    background: linear-gradient(135deg, #2c1810, #5d4037);
+    border: 2px solid #ffd700;
+    text-align: center;
+}
+
+#storyTitle {
+    font-size: 2.5rem;
+    color: #ffd700;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+
+#storyText {
+    font-size: 1.5rem;
+    color: #f5f5dc;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    white-space: pre-line;
+}
+
+.challenge-btn {
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #8e24aa, #3f51b5);
+    color: white;
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.challenge-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
