@@ -254,8 +254,8 @@ function stopBackgroundMusic() {
 
 // 게임 시작
 function startGame() {
+    console.log('=== 게임 시작 ===');
     requestFullScreen();
-    console.log('게임 시작 버튼 클릭됨');
     
     showTransitionWithVideo('start', () => {
         document.getElementById('startScreen').classList.add('fade-out');
@@ -268,8 +268,13 @@ function startGame() {
                 
                 // ✨ 미션 모달 표시
                 showMissionModal(1, () => {
-                    activateCurrentObject();
-                    startRoomTimer();
+                    console.log('--- 미션 모달 닫힘, 첫 오브젝트 활성화 ---');
+                    
+                    // 약간의 딜레이 후 첫 오브젝트 활성화
+                    setTimeout(() => {
+                        activateCurrentObject();
+                        startRoomTimer();
+                    }, 300);
                 });
             }, 50);
             loadGameState();
@@ -280,6 +285,7 @@ function startGame() {
 
 // 게임 이어하기
 function requestFullScreenAndResume() {
+    console.log('=== 게임 이어하기 ===');
     requestFullScreen();
     
     const resumeScreen = document.getElementById('resumeScreen');
@@ -293,8 +299,12 @@ function requestFullScreenAndResume() {
             document.getElementById('gameScreen').classList.add('active');
             loadGameState();
             updateUI();
-            activateCurrentObject();
-            startRoomTimer();
+            
+            // 현재 오브젝트 활성화
+            setTimeout(() => {
+                activateCurrentObject();
+                startRoomTimer();
+            }, 300);
         }, 50);
     }, 500);
 }
@@ -377,30 +387,62 @@ function showHintMessage(quizId) {
 
 // ✨ 현재 활성화되어야 할 오브젝트 활성화
 function activateCurrentObject() {
+    console.log('=== activateCurrentObject 호출 ===');
     const roomOrder = roomObjectOrder[currentRoom];
     const currentIndex = currentObjectIndex[currentRoom];
     
+    console.log('현재 방:', currentRoom);
+    console.log('현재 인덱스:', currentIndex);
+    console.log('방 퀴즈 순서:', roomOrder);
+    
     if (currentIndex < roomOrder.length) {
         const quizId = roomOrder[currentIndex];
+        console.log('활성화할 퀴즈 ID:', quizId);
+        console.log('완료된 퀴즈들:', completedQuizzes);
         
         if (!completedQuizzes.includes(quizId)) {
+            console.log('✅ 퀴즈', quizId, '활성화 시작');
             activateObject(quizId);
             showHintMessage(quizId);
+        } else {
+            console.log('⚠️ 퀴즈', quizId, '이미 완료됨');
         }
+    } else {
+        console.log('⚠️ 인덱스가 범위를 벗어남');
     }
 }
 
 // ✨ 특정 오브젝트 활성화
 function activateObject(quizId) {
+    console.log('=== activateObject 호출: 퀴즈', quizId, '===');
+    
+    // 모든 오브젝트를 비활성화
     document.querySelectorAll('.clickable').forEach(el => {
         el.classList.remove('active');
     });
     
     const className = objectClasses[quizId];
-    const targetElement = document.querySelector(`.${className}`);
+    console.log('찾을 클래스명:', className);
     
-    if (targetElement && !targetElement.classList.contains('completed')) {
-        targetElement.classList.add('active');
+    const targetElement = document.querySelector(`.${className}`);
+    console.log('찾은 요소:', targetElement);
+    
+    if (targetElement) {
+        const isCompleted = targetElement.classList.contains('completed');
+        console.log('완료 여부:', isCompleted);
+        
+        if (!isCompleted) {
+            targetElement.classList.add('active');
+            console.log('✅ active 클래스 추가 완료');
+            
+            // 클래스가 제대로 추가되었는지 확인
+            setTimeout(() => {
+                const hasActive = targetElement.classList.contains('active');
+                console.log('0.1초 후 active 확인:', hasActive);
+            }, 100);
+        }
+    } else {
+        console.log('❌ 요소를 찾을 수 없음!');
     }
 }
 
@@ -528,16 +570,22 @@ function gameOver() {
 
 // 게임 상태 로드
 function loadGameState() {
+    console.log('=== loadGameState 호출 ===');
+    
     const savedRoom = localStorage.getItem('currentRoom');
     if (savedRoom) {
         currentRoom = parseInt(savedRoom);
         showRoom(currentRoom);
+        console.log('저장된 방 로드:', currentRoom);
     }
     
     const savedIndex = localStorage.getItem('currentObjectIndex');
     if (savedIndex) {
         currentObjectIndex = JSON.parse(savedIndex);
+        console.log('저장된 오브젝트 인덱스:', currentObjectIndex);
     }
+    
+    console.log('완료된 퀴즈:', completedQuizzes);
     
     completedQuizzes.forEach(quizId => {
         markQuizCompleted(quizId);
@@ -1535,8 +1583,12 @@ function normalizeAnswer(answer) {
 
 // 정답 처리
 function correctAnswer() {
+   console.log('=== correctAnswer 호출 ===');
+   console.log('현재 퀴즈 ID:', currentQuiz);
+   
    if (!completedQuizzes.includes(currentQuiz)) {
         completedQuizzes.push(currentQuiz);
+        console.log('✅ 완료 퀴즈에 추가:', currentQuiz);
    }
    localStorage.setItem('completedQuizzes', JSON.stringify(completedQuizzes));
    
@@ -1550,14 +1602,27 @@ function correctAnswer() {
    const roomOrder = roomObjectOrder[currentRoom];
    const completedIndex = roomOrder.indexOf(currentQuiz);
    
+   console.log('현재 방:', currentRoom);
+   console.log('방 퀴즈 순서:', roomOrder);
+   console.log('완료된 퀴즈의 인덱스:', completedIndex);
+   console.log('방 퀴즈 개수:', roomOrder.length);
+   
    if (completedIndex !== -1 && completedIndex < roomOrder.length - 1) {
-       currentObjectIndex[currentRoom] = completedIndex + 1;
+       console.log('✅ 다음 오브젝트 활성화 시작');
+       const nextIndex = completedIndex + 1;
+       currentObjectIndex[currentRoom] = nextIndex;
        localStorage.setItem('currentObjectIndex', JSON.stringify(currentObjectIndex));
        
+       console.log('다음 인덱스로 설정:', nextIndex);
+       console.log('업데이트된 currentObjectIndex:', currentObjectIndex);
+       
+       // 1초 후 다음 오브젝트 활성화
        setTimeout(() => {
+           console.log('--- 1초 후 activateCurrentObject 호출 ---');
            activateCurrentObject();
        }, 1000);
    } else {
+       console.log('⚠️ 마지막 퀴즈 완료 또는 인덱스 오류');
        checkRoomCompletion();
    }
 }
@@ -1679,6 +1744,7 @@ function createConfetti() {
 
 // 다음 방으로 이동
 function nextRoom() {
+   console.log('=== 다음 방으로 이동 ===');
    const nextRoomNum = currentRoom + 1;
    
    stopRoomTimer();
@@ -1691,9 +1757,13 @@ function nextRoom() {
            currentRoom = nextRoomNum;
            localStorage.setItem('currentRoom', currentRoom);
            
+           console.log('다음 방:', currentRoom);
+           
            // ✨ 다음 방의 오브젝트 인덱스 초기화
-           if (!currentObjectIndex[currentRoom]) {
+           if (typeof currentObjectIndex[currentRoom] === 'undefined') {
                currentObjectIndex[currentRoom] = 0;
+               localStorage.setItem('currentObjectIndex', JSON.stringify(currentObjectIndex));
+               console.log('다음 방 인덱스 초기화:', currentObjectIndex);
            }
            
            showRoom(currentRoom);
@@ -1702,8 +1772,12 @@ function nextRoom() {
            
            // ✨ 미션 모달 표시
            showMissionModal(currentRoom, () => {
-               activateCurrentObject();
-               startRoomTimer();
+               console.log('--- 미션 모달 닫힘, 첫 오브젝트 활성화 ---');
+               
+               setTimeout(() => {
+                   activateCurrentObject();
+                   startRoomTimer();
+               }, 300);
            });
        }, 400);
    });
@@ -1774,6 +1848,8 @@ function showMessage(text) {
 
 // 게임 재시작
 function restartGame() {
+   console.log('=== 게임 재시작 ===');
+   
    stopRoomTimer();
    stopBackgroundMusic();
    
@@ -1789,6 +1865,7 @@ function restartGame() {
        }
    });
    
+   // 상태 초기화
    currentRoom = 1;
    completedQuizzes = [];
    currentQuiz = null;
@@ -1803,6 +1880,9 @@ function restartGame() {
    localStorage.removeItem('gameCompleted');
    localStorage.removeItem('currentObjectIndex');
    
+   console.log('✅ 모든 상태 초기화 완료');
+   
+   // 모든 오브젝트 초기화
    document.querySelectorAll('.clickable').forEach(element => {
        element.classList.remove('completed');
        element.classList.remove('active');
@@ -1830,6 +1910,8 @@ function restartGame() {
        hideTimerWarning();
        showRoom(1);
        updateUI();
+       
+       console.log('✅ 시작 화면으로 복귀 완료');
    }, 1000);
 }
 
