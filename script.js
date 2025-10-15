@@ -132,6 +132,75 @@ function requestFullScreen() {
 }
 // ===========================================
 
+// === ✨ 순차 진행을 위한 함수 (새로 추가) ✨ ===
+/**
+ * 모든 클릭 가능한 오브젝트의 상태(잠김/활성/완료)를 업데이트합니다.
+ * 게임 시작, 재개, 정답을 맞췄을 때 호출됩니다.
+ */
+function updateClickableStates() {
+    // 다음으로 풀어야 할 퀴즈 ID (완료된 퀴즈가 0개면 1번, 1개면 2번...)
+    const nextQuizId = completedQuizzes.length + 1;
+
+    const allClickables = document.querySelectorAll('.clickable');
+    allClickables.forEach(element => {
+        const quizId = parseInt(element.dataset.quizId, 10);
+
+        // 먼저 모든 상태 관련 클래스를 초기화
+        element.classList.remove('locked', 'unlocked-glowing');
+
+        if (completedQuizzes.includes(quizId)) {
+            // 이미 완료된 퀴즈는 .completed 클래스가 있으므로 그대로 둡니다.
+            // markQuizCompleted 함수가 .completed 클래스를 관리합니다.
+        } else if (quizId === nextQuizId) {
+            // 바로 다음에 풀어야 할 퀴즈는 강조 효과를 줍니다.
+            element.classList.add('unlocked-glowing');
+        } else {
+            // 아직 풀 수 없는 미래의 퀴즈는 잠금 처리합니다.
+            element.classList.add('locked');
+        }
+    });
+}
+
+
+/**
+ * 클릭 가능한 오브젝트에 이벤트 리스너를 설정합니다.
+ * 게임이 처음 로드될 때 한 번만 호출됩니다.
+ */
+function initializeClickables() {
+    const clickables = document.querySelectorAll('.clickable');
+    clickables.forEach(el => {
+        el.addEventListener('click', handleObjectClick);
+    });
+}
+
+/**
+ * 오브젝트 클릭 이벤트를 처리하는 핸들러입니다.
+ * @param {MouseEvent} event - 클릭 이벤트 객체
+ */
+function handleObjectClick(event) {
+    const target = event.currentTarget;
+
+    // 잠긴 오브젝트를 클릭한 경우
+    if (target.classList.contains('locked')) {
+        showMessage("이전 퀴즈를 먼저 풀어주세요!");
+        playClickSound(); // 잠겼을 때도 소리 피드백
+        
+        // 흔들리는 애니메이션 효과 추가
+        target.style.animation = 'shake 0.5s ease';
+        setTimeout(() => {
+            target.style.animation = '';
+        }, 500);
+        return;
+    }
+
+    // 잠기지 않은 경우(다음에 풀 퀴즈 또는 이미 푼 퀴즈)
+    const quizId = parseInt(target.dataset.quizId, 10);
+    if (quizId) {
+        openQuiz(quizId); // openQuiz 함수는 내부적으로 완료/미완료 상태를 처리
+    }
+}
+
+
 // 사운드 초기화 및 로드
 function initializeSounds() {
     try {
@@ -230,6 +299,7 @@ function startGame() {
             }, 50);
             loadGameState();
             updateUI();
+            updateClickableStates(); // ✨ 오브젝트 상태 업데이트
         }, 800);
     });
 }
@@ -250,6 +320,7 @@ function requestFullScreenAndResume() {
             document.getElementById('gameScreen').classList.add('active');
             loadGameState();
             updateUI();
+            updateClickableStates(); // ✨ 오브젝트 상태 업데이트
             startRoomTimer(); // 저장된 게임에서도 타이머 시작
         }, 50);
     }, 500);
@@ -1501,6 +1572,7 @@ function correctAnswer() {
    markQuizCompleted(currentQuiz);
    closeModal();
    updateUI();
+   updateClickableStates(); // ✨ 정답 후 오브젝트 상태 업데이트
    
    playCompletionEffect();
    checkRoomCompletion();
@@ -1527,26 +1599,12 @@ function wrongAnswer() {
 
 // 퀴즈 완료 표시
 function markQuizCompleted(quizId) {
-   const elements = document.querySelectorAll('.clickable');
-   let targetElement = null;
-   
-   if (quizId >= 1 && quizId <= 4) {
-       const room1Elements = document.querySelectorAll('#room1 .clickable');
-       targetElement = room1Elements[quizId - 1];
-   }
-   else if (quizId >= 5 && quizId <= 8) {
-       const room2Elements = document.querySelectorAll('#room2 .clickable');
-       targetElement = room2Elements[quizId - 5];
-   }
-   else if (quizId >= 9 && quizId <= 12) {
-       const room3Elements = document.querySelectorAll('#room3 .clickable');
-       targetElement = room3Elements[quizId - 9];
-   }
-   
-   if (targetElement) {
-       targetElement.classList.add('completed');
-   }
+    const targetElement = document.querySelector(`.clickable[data-quiz-id='${quizId}']`);
+    if (targetElement) {
+        targetElement.classList.add('completed');
+    }
 }
+
 
 // 완료 효과
 function playCompletionEffect() {
@@ -1760,6 +1818,7 @@ function nextRoom() {
            showRoom(currentRoom);
            document.getElementById('nextRoomBtn').style.display = 'none';
            updateUI();
+           updateClickableStates(); // ✨ 다음 방으로 이동 후 오브젝트 상태 업데이트
            startRoomTimer(); // 새 방에서 타이머 시작
        }, 400);
    });
@@ -1802,9 +1861,46 @@ function closeModal() {
 
 // 메시지 표시
 function showMessage(text) {
+   // 기존 메시지가 있다면 제거
+   const existingMessage = document.querySelector('.message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
    const message = document.createElement('div');
    message.className = 'message';
    message.textContent = text;
+   // 스타일 추가
+    message.style.cssText = `
+        position: fixed;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 0, 0, 0.8);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        z-index: 10001;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        animation: messageFade 1.5s ease-out forwards;
+    `;
+
+    // 애니메이션 키프레임 추가
+    if (!document.querySelector('#messageAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'messageAnimation';
+        style.textContent = `
+            @keyframes messageFade {
+                0% { opacity: 0; transform: translate(-50%, 20px); }
+                20% { opacity: 1; transform: translate(-50%, 0); }
+                80% { opacity: 1; transform: translate(-50%, 0); }
+                100% { opacity: 0; transform: translate(-50%, -20px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
    document.body.appendChild(message);
    
    setTimeout(() => {
@@ -1872,6 +1968,7 @@ function restartGame() {
        hideTimerWarning();
        showRoom(1);
        updateUI();
+       updateClickableStates(); // ✨ 재시작 시 오브젝트 상태 초기화
    }, 1000);
 }
 
@@ -1988,6 +2085,9 @@ document.getElementById('quizModal').addEventListener('click', function(e) {
 
 // 페이지 로드 시 초기화 (사운드 초기화 추가 및 전체 화면 요청)
 window.addEventListener('load', function() {
+    // ✨ 클릭 이벤트 리스너들 초기 설정
+    initializeClickables();
+    
     // 사운드 초기화
     initializeSounds();
  
@@ -2010,6 +2110,7 @@ window.addEventListener('load', function() {
         } else {
             // 저장된 게임이 없으면 시작 화면 표시 (기존 로직)
             document.getElementById('startScreen').style.display = 'flex';
+            updateClickableStates(); // ✨ 새 게임 시작 시 오브젝트 상태 초기화
         }
     }
  });
