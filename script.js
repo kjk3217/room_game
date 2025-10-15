@@ -24,6 +24,24 @@ const transitionVideos = {
     room2: 'videos/room2_to_room3.mp4'       // 방2 → 방3
 };
 
+// ▼▼▼ 스토리 데이터 추가 ▼▼▼
+const roomStories = {
+    1: {
+        title: "🔮 첫 번째 비밀의 방 🔮",
+        text: "언어 마법사의 첫 번째 시험에 오신 것을 환영합니다.\n흩어진 말들을 올바르게 분류하면,\n다음 시험으로 가는 문이 열릴 것입니다.\n빛나는 곳에서 시험이 시작됩니다..."
+    },
+    2: {
+        title: "🔮 두 번째 비밀의 방 🔮",
+        text: "언어의 움직임과 역할을 이해하는 자만이 통과할 수 있습니다.\n빛을 따라 시험을 이어가세요..."
+    },
+    3: {
+        title: "🔮 마지막 비밀의 방 🔮",
+        text: "언어의 관계를 깨달은 자만이 탈출할수 있습니다.\n모든 지혜를 모아 시험을 완수하세요..."
+    }
+};
+let shownStories = JSON.parse(localStorage.getItem('shownStories')) || [];
+// ▲▲▲ 스토리 데이터 추가 ▲▲▲
+
 // 퀴즈 데이터
 const quizzes = {
     // 방 1: 품사의 기본 개념
@@ -281,7 +299,50 @@ function stopBackgroundMusic() {
     }
 }
 
-// 게임 시작 - 비디오 전환 포함 (텍스트 제거)
+// ▼▼▼ 스토리 모달 관련 함수 추가 ▼▼▼
+/**
+ * 방에 처음 진입했을 때 스토리 모달을 보여줍니다.
+ * @param {number} roomNum - 현재 방 번호
+ */
+function showStoryModal(roomNum) {
+    // 이미 본 스토리면 바로 게임 시작
+    if (shownStories.includes(roomNum)) {
+        startRoomTimer();
+        updateClickableStates();
+        return;
+    }
+
+    const story = roomStories[roomNum];
+    if (story) {
+        document.getElementById('storyTitle').textContent = story.title;
+        document.getElementById('storyText').textContent = story.text;
+        document.getElementById('storyModal').style.display = 'flex';
+    } else {
+        // 스토리가 없는 경우 (예외 처리)
+        startChallenge();
+    }
+}
+
+/**
+ * '탈출 도전' 버튼 클릭 시 실행되는 함수
+ */
+function startChallenge() {
+    document.getElementById('storyModal').style.display = 'none';
+    
+    // 스토리를 봤다고 기록
+    if (!shownStories.includes(currentRoom)) {
+        shownStories.push(currentRoom);
+        localStorage.setItem('shownStories', JSON.stringify(shownStories));
+    }
+    
+    // 타이머 시작 및 오브젝트 활성화
+    startRoomTimer();
+    updateClickableStates();
+}
+// ▲▲▲ 스토리 모달 관련 함수 추가 ▲▲▲
+
+
+// 게임 시작 - 비디오 전환 포함 (스토리 모달 호출로 수정)
 function startGame() {
     requestFullScreen(); // ✨ 시작 시 전체화면 요청
     console.log('게임 시작 버튼 클릭됨');
@@ -294,17 +355,17 @@ function startGame() {
             document.getElementById('gameScreen').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('gameScreen').classList.add('active');
-                showRoom(1);
-                startRoomTimer(); // 타이머 시작
+                loadGameState();
+                updateUI();
+                // 스토리 모달을 보여주고, 모달이 닫히면 게임이 시작됨
+                showStoryModal(currentRoom); 
             }, 50);
-            loadGameState();
-            updateUI();
-            updateClickableStates(); // ✨ 오브젝트 상태 업데이트
         }, 800);
     });
 }
 
-// ✨ 게임 이어하기 함수 (새로 추가) ✨
+
+// ✨ 게임 이어하기 함수 (타이머 직접 시작으로 수정) ✨
 function requestFullScreenAndResume() {
     requestFullScreen(); // 전체화면 요청
     
@@ -320,8 +381,9 @@ function requestFullScreenAndResume() {
             document.getElementById('gameScreen').classList.add('active');
             loadGameState();
             updateUI();
-            updateClickableStates(); // ✨ 오브젝트 상태 업데이트
-            startRoomTimer(); // 저장된 게임에서도 타이머 시작
+            // 이어하기는 스토리 없이 바로 시작
+            updateClickableStates(); 
+            startRoomTimer(); 
         }, 50);
     }, 500);
 }
@@ -482,7 +544,7 @@ function openQuiz(quizId) {
     const isCompleted = completedQuizzes.includes(quizId);
     
     // 👈 여기에 퀴즈별 모달 크기 설정 추가
-    const modalContent = document.querySelector('.modal-content');
+    const modalContent = document.querySelector('#quizModal .modal-content');
     
     // 퀴즈 타입별로 크기 다르게 설정
     if (quiz.type === 'matching' || quiz.type === 'word_sort' || quiz.type === 'word_classification') {
@@ -685,8 +747,8 @@ function createCompletedQuizDisplay(quiz) {
     inputContainer.appendChild(answerContainer);
     
     // 버튼 영역 수정
-    const submitBtn = document.querySelector('.submit-btn');
-    const closeBtn = document.querySelector('.close-btn');
+    const submitBtn = document.querySelector('#quizModal .submit-btn');
+    const closeBtn = document.querySelector('#quizModal .close-btn');
     
     if (submitBtn) {
         submitBtn.style.display = 'none'; // 확인 버튼 숨기기
@@ -1399,8 +1461,8 @@ function createQuizInput(type) {
    }
    
    // 버튼 영역 원상복구
-   const submitBtn = document.querySelector('.submit-btn');
-   const closeBtn = document.querySelector('.close-btn');
+   const submitBtn = document.querySelector('#quizModal .submit-btn');
+   const closeBtn = document.querySelector('#quizModal .close-btn');
    
    if (submitBtn) {
        submitBtn.style.display = 'inline-block';
@@ -1801,11 +1863,11 @@ function createConfetti() {
    }, 5000);
 }
 
-// 다음 방으로 이동 (텍스트 없이)
+// 다음 방으로 이동 (스토리 모달 호출로 수정)
 function nextRoom() {
    const nextRoomNum = currentRoom + 1;
    
-   // 타이머 리셋
+   // 타이머 중지
    stopRoomTimer();
    
    const videoKey = `room${currentRoom}`;
@@ -1818,11 +1880,12 @@ function nextRoom() {
            showRoom(currentRoom);
            document.getElementById('nextRoomBtn').style.display = 'none';
            updateUI();
-           updateClickableStates(); // ✨ 다음 방으로 이동 후 오브젝트 상태 업데이트
-           startRoomTimer(); // 새 방에서 타이머 시작
+           // 다음 방의 스토리를 보여줌
+           showStoryModal(currentRoom);
        }, 400);
    });
 }
+
 
 // 방 표시
 function showRoom(roomNum) {
@@ -1853,7 +1916,7 @@ function updateUI() {
    document.getElementById('roomInfo').textContent = roomNames[currentRoom] || `방 ${currentRoom}`;
 }
 
-// 모달 닫기
+// 모달 닫기 (퀴즈 모달만)
 function closeModal() {
    document.getElementById('quizModal').style.display = 'none';
    currentQuiz = null;
@@ -1910,7 +1973,7 @@ function showMessage(text) {
    }, 1500);
 }
 
-// 게임 재시작 - 부드러운 전환 추가
+// 게임 재시작 - 부드러운 전환 추가 (스토리 기록 삭제 추가)
 function restartGame() {
    stopRoomTimer(); // 타이머 중지
    stopBackgroundMusic(); // 배경음악 중지
@@ -1935,10 +1998,12 @@ function restartGame() {
    currentQuiz = null;
    timeLeft = 600;
    isTimerActive = false;
+   shownStories = []; // 스토리 기록 초기화
    
    localStorage.removeItem('completedQuizzes');
    localStorage.removeItem('currentRoom');
    localStorage.removeItem('gameCompleted');
+   localStorage.removeItem('shownStories'); // 로컬 스토리지에서도 삭제
    
    document.querySelectorAll('.clickable').forEach(element => {
        element.classList.remove('completed');
