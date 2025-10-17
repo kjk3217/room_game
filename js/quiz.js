@@ -432,7 +432,7 @@ function openHint() {
         return;
     }
     
-    document.getElementById('hintContent').textContent = "ㅈㅇ+ㅁㅇ";
+    document.getElementById('hintContent').textContent = "ㅍㅅㅇㅈㄹ?";
     document.getElementById('hintModal').style.display = 'flex';
 }
 
@@ -1020,5 +1020,6 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
+
 
 
