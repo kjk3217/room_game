@@ -75,28 +75,52 @@ function closeStoryModal() {
 // 엔딩 시퀀스 시작
 function startEndingSequence() {
     stopRoomTimer();
-    
-    // 게임 화면을 먼저 투명하게 (3번방이 다시 안 보이게)
-    document.getElementById('gameScreen').style.opacity = '0';
-    
-    // room3 전환 비디오 재생
-    showTransitionWithVideo('room3', () => {
-        // 비디오 끝난 후 엔딩 화면으로 바로 전환
+   
+    const fadeOverlay = document.createElement('div');
+    fadeOverlay.id = 'fadeOverlay';
+    fadeOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        z-index: 8000;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+    `;
+    document.body.appendChild(fadeOverlay);
+   
+    setTimeout(() => {
+        fadeOverlay.style.opacity = '1';
+    }, 100);
+   
+    setTimeout(() => {
         document.getElementById('gameScreen').style.display = 'none';
-        
+       
         const endingScreen = document.getElementById('endingScreen');
         endingScreen.style.display = 'flex';
         endingScreen.style.opacity = '1';
         endingScreen.style.transform = 'scale(1.5)';
-        
+        endingScreen.classList.add('active');
+
+        playBackgroundMusic();
+       
         setTimeout(() => {
-            endingScreen.classList.add('active');
+            fadeOverlay.style.opacity = '0';
+           
             endingScreen.style.transition = 'transform 3s ease-out';
             endingScreen.style.transform = 'scale(1)';
-            
-            playBackgroundMusic();
-            createCelebrationEffect();
-            localStorage.setItem('gameCompleted', 'true');
-        }, 100);
-    });
+           
+            setTimeout(() => {
+                if (fadeOverlay.parentNode) {
+                    fadeOverlay.parentNode.removeChild(fadeOverlay);
+                }
+               
+                createCelebrationEffect();
+               
+                localStorage.setItem('gameCompleted', 'true');
+            }, 2000);
+        }, 500);
+    }, 2000);
 }

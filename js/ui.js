@@ -83,7 +83,6 @@ function createCelebrationEffect() {
 // 색종이 개별 생성
 function createConfetti() {
     const confetti = document.createElement('div');
-    confetti.className = 'confetti-piece';  // ← 이 줄 추가
     const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
    
@@ -220,5 +219,4 @@ function showTransitionWithVideo(videoKey, callback) {
             }, 500);
         }
     }, 7000);
-
 }
