@@ -66,17 +66,17 @@ function restartGame() {
     stopRoomTimer();
     stopBackgroundMusic();
    
-    if (confettiInterval) {
-        clearInterval(confettiInterval);
-        confettiInterval = null;
-    }
-   
-    const confettis = document.querySelectorAll('div[style*="confettiFall"]');
-    confettis.forEach(confetti => {
-        if (confetti.parentNode) {
-            confetti.parentNode.removeChild(confetti);
-        }
-    });
+    // 색종이 interval 완전히 정리
+if (confettiInterval) {
+    clearInterval(confettiInterval);
+    confettiInterval = null;
+}
+
+// 모든 색종이 제거
+const confettis = document.querySelectorAll('.confetti-piece');
+confettis.forEach(confetti => {
+    confetti.remove();
+});
    
     currentRoom = 1;
     completedQuizzes = [];
@@ -163,4 +163,5 @@ document.getElementById('quizModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeModal();
     }
+
 });
