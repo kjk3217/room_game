@@ -414,14 +414,8 @@ function correctAnswerForFinalQuiz() {
         modal.style.opacity = '';
         modal.style.transform = '';
        
-        // ✨ 여기부터 수정된 부분!
         setTimeout(() => {
-            stopRoomTimer();  // 타이머 중지
-            
-            // 전환 동영상 재생 후 엔딩 시퀀스 시작
-            showTransitionWithVideo('room3', () => {
-                startEndingSequence();
-            });
+            startEndingSequence();
         }, 300);
     }, 500);
 }
@@ -438,7 +432,7 @@ function openHint() {
         return;
     }
     
-    document.getElementById('hintContent').textContent = "ㅍㅅㅇ  ㅈㄹ?";
+    document.getElementById('hintContent').textContent = "ㅍㅅㅇㅈㄹ?";
     document.getElementById('hintModal').style.display = 'flex';
 }
 
@@ -1026,9 +1020,6 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
-
-
-
 
 
 
