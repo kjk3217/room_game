@@ -9,7 +9,7 @@ let currentQuiz = null;
 
 // 타이머 관련 변수
 let roomTimer = null;
-let timeLeft = 600;
+let timeLeft = parseInt(localStorage.getItem('timeLeft')) || 420;
 let tickSound = null;
 let isTimerActive = false;
 
@@ -160,6 +160,7 @@ function getRoomQuizzes(roomNum) {
     }
 
 }
+
 
 
 
