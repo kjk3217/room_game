@@ -980,7 +980,6 @@ function handleTouchStart(e) {
     draggedTouchElement.classList.add('touch-dragging');
     draggedTouchElement.style.left = `${rect.left}px`;
     draggedTouchElement.style.top = `${rect.top}px`;
-
     draggedTouchElement.style.width = `${rect.width}px`;
     draggedTouchElement.style.height = `${rect.height}px`;
 
@@ -1031,6 +1030,7 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
+
 
 
 
