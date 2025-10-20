@@ -117,11 +117,10 @@ function startEndingSequence() {
                     fadeOverlay.parentNode.removeChild(fadeOverlay);
                 }
                
-                // createCelebrationEffect();
+                createCelebrationEffect();
                
                 localStorage.setItem('gameCompleted', 'true');
             }, 2000);
         }, 500);
     }, 2000);
-
 }

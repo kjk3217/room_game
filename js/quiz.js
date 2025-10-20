@@ -414,12 +414,9 @@ function correctAnswerForFinalQuiz() {
         modal.style.opacity = '';
         modal.style.transform = '';
        
-        showTransitionWithVideo('ending', () => {
-            // ✨ 바로 이 부분입니다!
-            // 전환 영상이 끝나면 게임 화면을 즉시 숨겨서 3번 방이 보이지 않게 합니다.
-            document.getElementById('gameScreen').style.display = 'none';
+        setTimeout(() => {
             startEndingSequence();
-        });
+        }, 300);
     }, 500);
 }
 
@@ -1023,8 +1020,6 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
-
-
 
 
 
