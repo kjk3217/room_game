@@ -74,7 +74,7 @@ function startRoomTimer() {
             gameOver();
         }
     }, 1000);
-}}
+}
 
 // 타이머 중지
 function stopRoomTimer() {
@@ -137,4 +137,5 @@ function gameOver() {
     closeModal();
 
 }
+
 
