@@ -76,6 +76,7 @@ function restartGame() {
     localStorage.removeItem('currentRoom');
     localStorage.removeItem('gameCompleted');
     localStorage.removeItem('puzzleCompleted');
+     localStorage.removeItem('timeLeft');
     puzzleCompleted = false;
     
     document.querySelectorAll('.clickable').forEach(element => {
@@ -153,3 +154,4 @@ document.getElementById('quizModal').addEventListener('click', function(e) {
     }
 
 });
+
