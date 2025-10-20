@@ -36,13 +36,17 @@ function initTimer() {
 function startRoomTimer() {
     if (isTimerActive) return;
     
-    timeLeft = 420;
+    // 저장된 시간이 없으면 420초로 시작
+    if (!localStorage.getItem('timeLeft')) {
+        timeLeft = 420;
+    }
     isTimerActive = true;
     updateTimerDisplay();
     initTimer();
     
     roomTimer = setInterval(() => {
         timeLeft--;
+        localStorage.setItem('timeLeft', timeLeft);
         updateTimerDisplay();
         
         if (timeLeft <= 120 && tickSound) {
@@ -122,4 +126,5 @@ function gameOver() {
     }, 100);
     
     closeModal();
+
 }
