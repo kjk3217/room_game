@@ -9,7 +9,8 @@ let currentQuiz = null;
 
 // 타이머 관련 변수
 let roomTimer = null;
-let timeLeft = parseInt(localStorage.getItem('timeLeft')) || 420;
+let timeLeft = 420;  // ← 이렇게 단순하게 변경
+let lastSavedRoom = parseInt(localStorage.getItem('lastSavedRoom')) || 1;  // ← 이 줄은 새로 추가
 let tickSound = null;
 let isTimerActive = false;
 
@@ -160,6 +161,7 @@ function getRoomQuizzes(roomNum) {
     }
 
 }
+
 
 
 
