@@ -414,9 +414,13 @@ function correctAnswerForFinalQuiz() {
         modal.style.opacity = '';
         modal.style.transform = '';
        
-        setTimeout(() => {
-            startEndingSequence();
-        }, 300);
+        // ✨ 수정된 부분: 바로 엔딩 시퀀스를 시작하는 대신,
+        // 'ending' 키로 등록된 비디오를 재생하고 비디오가 끝나면 startEndingSequence 함수를 실행합니다.
+        showTransitionWithVideo('ending', () => {
+            setTimeout(() => {
+                startEndingSequence();
+            }, 300);
+        });
     }, 500);
 }
 
@@ -1020,6 +1024,7 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
+
 
 
 
