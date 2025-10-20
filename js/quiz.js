@@ -414,12 +414,11 @@ function correctAnswerForFinalQuiz() {
         modal.style.opacity = '';
         modal.style.transform = '';
        
-        // ✨ 수정된 부분: 바로 엔딩 시퀀스를 시작하는 대신,
-        // 'ending' 키로 등록된 비디오를 재생하고 비디오가 끝나면 startEndingSequence 함수를 실행합니다.
         showTransitionWithVideo('ending', () => {
-            setTimeout(() => {
-                startEndingSequence();
-            }, 300);
+            // ✨ 바로 이 부분입니다!
+            // 전환 영상이 끝나면 게임 화면을 즉시 숨겨서 3번 방이 보이지 않게 합니다.
+            document.getElementById('gameScreen').style.display = 'none';
+            startEndingSequence();
         });
     }, 500);
 }
@@ -1024,6 +1023,7 @@ function handleTouchEnd(e) {
     draggedTouchElement = null;
 
 }
+
 
 
 
